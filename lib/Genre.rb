@@ -1,15 +1,13 @@
 require 'pry'
 
-class Song
-  attr_accessor :name, :artist, :genre, :musicimporter, :musiclibrarycontroller
+class Genre
+  attr_accessor :name, :musiclibrarycontroller, :musicimporter
   extend Concerns::Findable
-
   @@all = []
 
-  def initialize(name, artist=nil, genre=nil)
+  def initialize(name)
     @name = name
-    self.artist=(artist) if artist != nil
-    self.genre=(genre) if genre != nil
+    @songs = []
   end
 
   def self.all
@@ -24,62 +22,26 @@ class Song
     @@all << self
   end
 
-  def self.create(song)
-    song = self.new(song)
-    song.save
-    song
+  def self.create(genre)
+    genre = self.new(genre)
+    genre.save
+    genre
   end
 
-  def artist
-    @artist
+  def songs
+    @songs
   end
 
-  def artist=(artist)
-    @artist = artist
-    artist.add_song(self)
-  end
-
-  def genre
-    @genre
-  end
-
-  def genre=(genre)
-    @genre = genre
-    genre.songs << self unless genre.songs.include?(self)
-  end
-
-  def self.find_by_name(name)
-    @@all.detect do |song|
-      song.name == name
+  def artists
+    @new_array = []
+    @songs.each do |song|
+      if @new_array.include?(song.artist)
+        nil
+      else
+        @new_array << song.artist
+      end
     end
-  end
-
-  def self.find_or_create_by_name(name)
-    # @@all.detect do |song|
-    #   if song.name == name
-    #     song
-    #   else
-    #     self.create(name)
-    #   end
-    # end
-    self.find_by_name(name) || self.create(name)
-
-  end
-
-  def self.new_from_filename(filename)
-    array = filename.split(" - ")
-
-    song_name = array[1]
-    artist_name = array[0]
-    genre_name = array[2].split(".mp3").join
-
-    artist = Artist.find_or_create_by_name(artist_name)
-    genre = Genre.find_or_create_by_name(genre_name)
-    self.new(song_name, artist, genre)
-  end
-
-  def self.create_from_filename(filename)
-    self.new_from_filename(filename).save
+    @new_array
   end
 
 
